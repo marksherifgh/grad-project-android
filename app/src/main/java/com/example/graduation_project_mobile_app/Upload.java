@@ -4,19 +4,19 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.widget.VideoView;
 
 public class Upload extends AppCompatActivity {
-    public Intent fileIntent;
+
+//    TODO: Get graph view
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload);
-
-        fileIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        fileIntent.setType("video/*");
-        startActivityForResult(fileIntent, 10);
+//      TODO: pass data from opencv to graphview
     }
-
 }
+
