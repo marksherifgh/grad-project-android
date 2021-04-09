@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
         camera = (Button) findViewById(R.id.camera);
         upload = (Button) findViewById(R.id.upload);
 
-        how.setOnClickListener(new View.OnClickListener() {
+        how.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, How.class);
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_TAKE_GALLERY_VIDEO) {
                 Uri videoUri = data.getData();
-                //TODO: openCV processing in here and return array to be sent to the Upload activity
+                //TODO: openCV processing in here using VideoCapture and return array to be sent to the Upload activity
                 Intent intent = new Intent(MainActivity.this, Upload.class);
                 //TODO: putExtra (Key, value)
                 startActivity(intent);
