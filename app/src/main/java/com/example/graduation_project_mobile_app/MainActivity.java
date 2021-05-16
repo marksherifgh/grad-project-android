@@ -10,6 +10,11 @@ import android.widget.Button;
 import android.content.Intent;
 import android.view.View;
 
+import com.example.graduation_project_mobile_app.R;
+
+import org.opencv.android.OpenCVLoader;
+import org.opencv.videoio.VideoCapture;
+
 public class MainActivity extends AppCompatActivity {
 
     public Button how;
@@ -56,8 +61,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_TAKE_GALLERY_VIDEO) {
-                Uri videoUri = data.getData();
-                //TODO: openCV processing in here using VideoCapture and return array to be sent to the Upload activity
+                String videoPath = data.getData().getPath();
                 Intent intent = new Intent(MainActivity.this, Upload.class);
                 //TODO: putExtra (Key, value)
                 startActivity(intent);
