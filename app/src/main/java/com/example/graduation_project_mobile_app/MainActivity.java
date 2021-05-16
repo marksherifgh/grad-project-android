@@ -1,19 +1,14 @@
 package com.example.graduation_project_mobile_app;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.view.View;
+import android.widget.Button;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.net.Uri;
-import android.os.Bundle;
-import android.provider.MediaStore;
-import android.widget.Button;
-import android.content.Intent;
-import android.view.View;
-
-import com.example.graduation_project_mobile_app.R;
-
-import org.opencv.android.OpenCVLoader;
-import org.opencv.videoio.VideoCapture;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
         camera = (Button) findViewById(R.id.camera);
         upload = (Button) findViewById(R.id.upload);
 
-        how.setOnClickListener( new View.OnClickListener() {
+        how.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, How.class);
@@ -56,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
