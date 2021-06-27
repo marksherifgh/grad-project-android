@@ -16,7 +16,7 @@ public class Splash extends AppCompatActivity {
         Runnable Splash = new Runnable() {
             @Override
             public void run() {
-                Intent intent = new Intent(Splash.this, MainActivity.class);
+                Intent intent = new Intent(Splash.this, Camera.class);
                 startActivity(intent);
                 finish();
             }

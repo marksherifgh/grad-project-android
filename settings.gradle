@@ -1,2 +1,3 @@
 include ':app'
 rootProject.name = "graduation-project-mobile-app"
+include ':sdk'
