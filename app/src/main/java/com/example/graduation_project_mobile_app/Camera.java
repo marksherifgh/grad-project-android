@@ -3,6 +3,7 @@ package com.example.graduation_project_mobile_app;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,10 +15,10 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
-import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.aruco.Aruco;
@@ -28,6 +29,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt;
 import org.opencv.imgproc.Imgproc;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,10 +42,17 @@ public class Camera extends Activity implements CvCameraViewListener2 {
     public MatOfInt ids = new MatOfInt();
     public List<Mat> corners;
     public DetectorParameters parameters;
-    public Mat gray = new Mat();;
-    public Mat frame = new Mat();;
+    public Mat gray = new Mat();
+    public Mat frame = new Mat();
     public Dictionary dictionary;
     public CameraBridgeViewBase camera;
+    public long startTime;
+    public long frameTime;
+    public double t;
+    public double x;
+    public int count = 0;
+    public ArrayList<Double> xDynamic = new ArrayList<>();
+    public ArrayList<Double> tDynamic = new ArrayList<>();
 
     private BaseLoaderCallback loaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -96,12 +105,12 @@ public class Camera extends Activity implements CvCameraViewListener2 {
         camera = findViewById(R.id.main_camera);
         camera.setVisibility(SurfaceView.VISIBLE);
         camera.setCvCameraViewListener(this);
+        startTime = System.currentTimeMillis();
         ActivityCompat.requestPermissions(Camera.this,
                 new String[]{Manifest.permission.CAMERA},
                 1);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
-            // More code here ...
         } else {
             Log.d("perm", "Permissions granted");
             camera.setCameraPermissionGranted();
@@ -114,7 +123,7 @@ public class Camera extends Activity implements CvCameraViewListener2 {
         if (OpenCVLoader.initDebug())
             loaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         else
-            Toast.makeText(this, "Errorrrrrrrrr", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Error", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -122,16 +131,21 @@ public class Camera extends Activity implements CvCameraViewListener2 {
         super.onPause();
         if (camera != null)
             camera.disableView();
-
     }
 
     @Override
     public void onDestroy() {
+        Double[] xTemp = new Double[xDynamic.size()];
+        Double[] tTemp = new Double[tDynamic.size()];
+        xTemp = xDynamic.toArray(xTemp);
+        tTemp = tDynamic.toArray(tTemp);
+        double[] xList = ArrayUtils.toPrimitive(xTemp);
+        double[] tList = ArrayUtils.toPrimitive(tTemp);
         super.onDestroy();
-
-        if (camera != null)
-            camera.disableView();
-
+        Intent intent = new Intent(Camera.this, Upload.class);
+        intent.putExtra("xList", xList);
+        intent.putExtra("tList", tList);
+        startActivity(intent);
     }
 
     @Override
@@ -153,22 +167,30 @@ public class Camera extends Activity implements CvCameraViewListener2 {
         gray = cvCameraViewFrame.gray();
         ids = new MatOfInt();
         corners.clear();
-        Log.d("please", "pleaaaseee");
         Aruco.detectMarkers(gray, dictionary, corners, ids, parameters);
-
         if (corners.size() > 0) {
+            frameTime = System.currentTimeMillis();
+            t = (double) (frameTime - startTime) / 1000.0d;
+            tDynamic.add(t);
             Aruco.drawDetectedMarkers(frame, corners, ids);
-
-            rvecs = new Mat();
-            tvecs = new Mat();
             cameraMatrix = Mat.eye(3, 3, CvType.CV_64FC1);
             distCoeffs = Mat.zeros(5, 1, CvType.CV_64FC1);
             Aruco.estimatePoseSingleMarkers(corners, 0.04f, cameraMatrix, distCoeffs, rvecs, tvecs);
             for (int i = 0; i < ids.toArray().length; i++) {
-//                Aruco.drawDetectedMarkers(frame, corners);
                 Aruco.drawAxis(frame, cameraMatrix, distCoeffs, rvecs, tvecs, 0.02f);
+                long currentTime = System.currentTimeMillis();
+                double[] xMatrix = corners.get(0).get(0, 0);
+                x = xMatrix[0];
+                // Todo: limit number of frames coming to 2000
+                Log.d("Testing", "x = " + String.valueOf(x));
+                Log.d("Testing", "t = " + String.valueOf(t));
+                Log.d("Testing", "count = " + String.valueOf(count));
             }
-
+            xDynamic.add(x);
+            if (count == 499) {
+                onDestroy();
+            }
+            count++;
         }
         return frame;
     }

@@ -27,12 +27,34 @@ public class Upload extends AppCompatActivity {
     public EditText cutoff;
     public Spinner spinner;
     public String[] list = {"Displacement", "Velocity", "Acceleration"};
+    public double[] xList;
+    public double[] tList;
+    public DataPoint[] datax;
+    public DataPoint[] datav;
+    public DataPoint[] dataa;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload);
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            if (extras == null) {
+                xList = null;
+                tList = null;
+            } else {
+                xList = (double[]) extras.get("xList");
+                tList = (double[]) extras.get("tList");
+            }
+        } else {
+            xList = (double[]) savedInstanceState.getSerializable("xList");
+            tList = (double[]) savedInstanceState.getSerializable("tList");
+        }
+        double tCorrection = tList[0];
+        for (int i = 0; i < tList.length; i++) {
+            tList[i] = tList[i] - tCorrection;
 
+        }
         // ------ Definitions ------ //
 
         toggle = (Button) findViewById(R.id.toggle);
@@ -43,13 +65,11 @@ public class Upload extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         GraphView graph = (GraphView) findViewById(R.id.graph);
-        LineGraphSeries<DataPoint> series_d = new LineGraphSeries<DataPoint>(new DataPoint[]{
-                new DataPoint(0, 1),
-                new DataPoint(1, 5),
-                new DataPoint(2, 3),
-                new DataPoint(3, 2),
-                new DataPoint(4, 6)
-        });
+        datax = new DataPoint[xList.length];
+        for(int i=0;i<xList.length;i++){
+            datax[i] = new DataPoint(tList[i], xList[i]);
+        }
+        LineGraphSeries<DataPoint> series_d = new LineGraphSeries<DataPoint>(datax);
         series_d.setDrawDataPoints(true);
 
         LineGraphSeries<DataPoint> series_v = new LineGraphSeries<DataPoint>(new DataPoint[]{
@@ -76,7 +96,7 @@ public class Upload extends AppCompatActivity {
             @Override
             public void onTap(Series series, DataPointInterface dataPoint) {
                 Log.d("datapoint", "datapoint: " + dataPoint.toString());
-                Toast.makeText(Upload.this, "X = " + dataPoint.getX() + " Y = " + dataPoint.getY(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(Upload.this, "X = " + dataPoint.getY() + " T = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -84,7 +104,7 @@ public class Upload extends AppCompatActivity {
             @Override
             public void onTap(Series series, DataPointInterface dataPoint) {
                 Log.d("datapoint", "datapoint: " + dataPoint.toString());
-                Toast.makeText(Upload.this, "X = " + dataPoint.getX() + " Y = " + dataPoint.getY(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(Upload.this, "V = " + dataPoint.getY() + " T = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -92,7 +112,7 @@ public class Upload extends AppCompatActivity {
             @Override
             public void onTap(Series series, DataPointInterface dataPoint) {
                 Log.d("datapoint", "datapoint: " + dataPoint.toString());
-                Toast.makeText(Upload.this, "X = " + dataPoint.getX() + " Y = " + dataPoint.getY(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(Upload.this, "A = " + dataPoint.getY() + " T = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -147,7 +167,6 @@ public class Upload extends AppCompatActivity {
 
 //      TODO: Set onCharge for cutoff frequency to change the graph
 //      TODO: get graphview by id
-//      TODO: pass data from opencv to graphview
     }
 }
 
