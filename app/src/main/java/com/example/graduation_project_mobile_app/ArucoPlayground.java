@@ -3,7 +3,6 @@ package com.example.graduation_project_mobile_app;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
@@ -29,12 +27,11 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt;
 import org.opencv.imgproc.Imgproc;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 
-public class Camera extends Activity implements CvCameraViewListener2 {
+public class ArucoPlayground extends Activity implements CvCameraViewListener2 {
     public Mat cameraMatrix = new Mat();
     public Mat distCoeffs = new Mat();
     public Mat rvecs = new Mat();
@@ -46,13 +43,7 @@ public class Camera extends Activity implements CvCameraViewListener2 {
     public Mat frame = new Mat();
     public Dictionary dictionary;
     public CameraBridgeViewBase camera;
-    public long startTime;
-    public long frameTime;
-    public double t;
-    public double y;
-    public int count = 0;
-    public ArrayList<Double> yDynamic = new ArrayList<>();
-    public ArrayList<Double> tDynamic = new ArrayList<>();
+
 
     private BaseLoaderCallback loaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -103,11 +94,10 @@ public class Camera extends Activity implements CvCameraViewListener2 {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_camera);
         camera = findViewById(R.id.main_camera);
+        camera.enableFpsMeter();
         camera.setVisibility(SurfaceView.VISIBLE);
         camera.setCvCameraViewListener(this);
-        camera.enableFpsMeter();
-        startTime = System.currentTimeMillis();
-        ActivityCompat.requestPermissions(Camera.this,
+        ActivityCompat.requestPermissions(ArucoPlayground.this,
                 new String[]{Manifest.permission.CAMERA},
                 1);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
@@ -136,17 +126,7 @@ public class Camera extends Activity implements CvCameraViewListener2 {
 
     @Override
     public void onDestroy() {
-        Double[] yTemp = new Double[yDynamic.size()];
-        Double[] tTemp = new Double[tDynamic.size()];
-        yTemp = yDynamic.toArray(yTemp);
-        tTemp = tDynamic.toArray(tTemp);
-        double[] yList = ArrayUtils.toPrimitive(yTemp);
-        double[] tList = ArrayUtils.toPrimitive(tTemp);
         super.onDestroy();
-        Intent intent = new Intent(Camera.this, Upload.class);
-        intent.putExtra("yList", yList);
-        intent.putExtra("tList", tList);
-        startActivity(intent);
     }
 
     @Override
@@ -170,25 +150,14 @@ public class Camera extends Activity implements CvCameraViewListener2 {
         corners.clear();
         Aruco.detectMarkers(gray, dictionary, corners, ids, parameters);
         if (corners.size() > 0) {
-            frameTime = System.currentTimeMillis();
-            t = (double) (frameTime - startTime) / 1000.0d;
-            tDynamic.add(t);
             Aruco.drawDetectedMarkers(frame, corners, ids);
             cameraMatrix = Mat.eye(3, 3, CvType.CV_64FC1);
             distCoeffs = Mat.zeros(5, 1, CvType.CV_64FC1);
             Aruco.estimatePoseSingleMarkers(corners, 0.04f, cameraMatrix, distCoeffs, rvecs, tvecs);
             for (int i = 0; i < ids.toArray().length; i++) {
                 Aruco.drawAxis(frame, cameraMatrix, distCoeffs, rvecs, tvecs, 0.02f);
-                double[] yMatrix = corners.get(0).get(0, 0);
-                y = yMatrix[0];
             }
-            yDynamic.add(y);
-            if (count == 499) {
-                onDestroy();
-            }
-            count++;
         }
-
         return frame;
     }
 

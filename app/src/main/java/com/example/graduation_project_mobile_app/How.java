@@ -20,7 +20,7 @@ public class How extends AppCompatActivity {
         getAruco.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://tn1ck.github.io/aruco-print/"));
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://chev.me/arucogen/"));
                 startActivity(intent);
             }
         });

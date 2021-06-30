@@ -37,12 +37,12 @@
         app:layout_constraintVertical_bias="0.376" />
 
     <Button
-        android:id="@+id/upload"
+        android:id="@+id/playGround"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="30dp"
         android:backgroundTint="#3f51b5"
-        android:text="Import File"
+        android:text="Aruco PlayGround"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -57,13 +57,13 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="30dp"
         android:backgroundTint="#3f51b5"
-        android:text="Capture Video"
+        android:text="Start Measuring"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/upload"
+        app:layout_constraintTop_toBottomOf="@+id/playGround"
         app:layout_constraintVertical_bias="0.075" />
 
 
