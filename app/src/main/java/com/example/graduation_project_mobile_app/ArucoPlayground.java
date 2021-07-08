@@ -94,7 +94,7 @@ public class ArucoPlayground extends Activity implements CvCameraViewListener2 {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_camera);
         camera = findViewById(R.id.main_camera);
-        camera.enableFpsMeter();
+        camera.setMaxFrameSize(640, 480);
         camera.setVisibility(SurfaceView.VISIBLE);
         camera.setCvCameraViewListener(this);
         ActivityCompat.requestPermissions(ArucoPlayground.this,

@@ -19,6 +19,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
+import org.opencv.android.JavaCamera2View;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.aruco.Aruco;
@@ -45,7 +46,7 @@ public class Camera extends Activity implements CvCameraViewListener2 {
     public Mat gray = new Mat();
     public Mat frame = new Mat();
     public Dictionary dictionary;
-    public CameraBridgeViewBase camera;
+    public JavaCamera2View camera;
     public long startTime;
     public long frameTime;
     public double t;
@@ -105,7 +106,7 @@ public class Camera extends Activity implements CvCameraViewListener2 {
         camera = findViewById(R.id.main_camera);
         camera.setVisibility(SurfaceView.VISIBLE);
         camera.setCvCameraViewListener(this);
-        camera.enableFpsMeter();
+        camera.setMaxFrameSize(640, 480);
         startTime = System.currentTimeMillis();
         ActivityCompat.requestPermissions(Camera.this,
                 new String[]{Manifest.permission.CAMERA},
@@ -143,6 +144,10 @@ public class Camera extends Activity implements CvCameraViewListener2 {
         double[] yList = ArrayUtils.toPrimitive(yTemp);
         double[] tList = ArrayUtils.toPrimitive(tTemp);
         super.onDestroy();
+        yTemp = null;
+        tTemp = null;
+        yDynamic = null;
+        tDynamic = null;
         Intent intent = new Intent(Camera.this, Upload.class);
         intent.putExtra("yList", yList);
         intent.putExtra("tList", tList);
@@ -189,8 +194,8 @@ public class Camera extends Activity implements CvCameraViewListener2 {
             count++;
         }
 
+
         return frame;
     }
-
 
 }
