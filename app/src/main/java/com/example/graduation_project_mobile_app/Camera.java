@@ -183,7 +183,7 @@ public class Camera extends Activity implements CvCameraViewListener2 {
             distCoeffs = Mat.zeros(5, 1, CvType.CV_64FC1);
             Aruco.estimatePoseSingleMarkers(corners, 0.04f, cameraMatrix, distCoeffs, rvecs, tvecs);
             for (int i = 0; i < ids.toArray().length; i++) {
-                Aruco.drawAxis(frame, cameraMatrix, distCoeffs, rvecs, tvecs, 0.02f);
+//                Aruco.drawAxis(frame, cameraMatrix, distCoeffs, rvecs, tvecs, 0.02f);
                 double[] yMatrix = corners.get(0).get(0, 0);
                 y = yMatrix[0];
             }
@@ -193,8 +193,6 @@ public class Camera extends Activity implements CvCameraViewListener2 {
             }
             count++;
         }
-
-
         return frame;
     }
 
