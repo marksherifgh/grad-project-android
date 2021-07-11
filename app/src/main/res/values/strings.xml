@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">graduation-project-mobile-app</string>
+    <string name="app_name">MotionTracker ASU</string>
     <string-array name="graph_spinner">
         <item>Displacement</item>
         <item>Acceleration</item>
