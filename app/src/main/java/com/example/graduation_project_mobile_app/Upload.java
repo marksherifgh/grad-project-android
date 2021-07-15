@@ -315,7 +315,6 @@ public class Upload extends AppCompatActivity {
                     return false; // pass on to other listeners.
                 }
             });
-            Log.d("Testing", String.valueOf(zeeta));
             series_y.setOnDataPointTapListener(new OnDataPointTapListener() {
                 @Override
                 public void onTap(Series series, DataPointInterface dataPoint) {
