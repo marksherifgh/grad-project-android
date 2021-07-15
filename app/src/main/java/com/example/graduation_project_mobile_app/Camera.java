@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.SurfaceView;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -60,7 +59,6 @@ public class Camera extends Activity implements CvCameraViewListener2 {
         public void onManagerConnected(int status) {
             switch (status) {
                 case LoaderCallbackInterface.SUCCESS: {
-                    Log.i("CheckOpen", "OpenCV loaded successfully");
                     camera.enableView();
                 }
                 break;
@@ -74,9 +72,7 @@ public class Camera extends Activity implements CvCameraViewListener2 {
 
     static {
         if (OpenCVLoader.initDebug()) {
-            Log.d("success", "OpenCV is intialised");
         } else {
-            Log.d("fail", "OpenCV is not initialised");
         }
     }
 
@@ -114,7 +110,6 @@ public class Camera extends Activity implements CvCameraViewListener2 {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
         } else {
-            Log.d("perm", "Permissions granted");
             camera.setCameraPermissionGranted();
         }
     }
@@ -183,7 +178,6 @@ public class Camera extends Activity implements CvCameraViewListener2 {
             distCoeffs = Mat.zeros(5, 1, CvType.CV_64FC1);
             Aruco.estimatePoseSingleMarkers(corners, 0.04f, cameraMatrix, distCoeffs, rvecs, tvecs);
             for (int i = 0; i < ids.toArray().length; i++) {
-//                Aruco.drawAxis(frame, cameraMatrix, distCoeffs, rvecs, tvecs, 0.02f);
                 double[] yMatrix = corners.get(0).get(0, 0);
                 y = yMatrix[0];
             }

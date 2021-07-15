@@ -5,7 +5,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.SurfaceView;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -50,7 +49,6 @@ public class ArucoPlayground extends Activity implements CvCameraViewListener2 {
         public void onManagerConnected(int status) {
             switch (status) {
                 case LoaderCallbackInterface.SUCCESS: {
-                    Log.i("CheckOpen", "OpenCV loaded successfully");
                     camera.enableView();
                 }
                 break;
@@ -64,9 +62,7 @@ public class ArucoPlayground extends Activity implements CvCameraViewListener2 {
 
     static {
         if (OpenCVLoader.initDebug()) {
-            Log.d("success", "OpenCV is intialised");
         } else {
-            Log.d("fail", "OpenCV is not initialised");
         }
     }
 
@@ -103,7 +99,6 @@ public class ArucoPlayground extends Activity implements CvCameraViewListener2 {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
         } else {
-            Log.d("perm", "Permissions granted");
             camera.setCameraPermissionGranted();
         }
     }

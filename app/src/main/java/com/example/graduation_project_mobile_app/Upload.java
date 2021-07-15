@@ -1,15 +1,20 @@
 package com.example.graduation_project_mobile_app;
 
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -103,7 +108,8 @@ class FFT {
 }
 
 public class Upload extends AppCompatActivity {
-
+    public TextView zeetaText;
+    public EditText zeetaInput;
     public Button toggle;
     public EditText cutoff;
     public Spinner spinner;
@@ -144,11 +150,31 @@ public class Upload extends AppCompatActivity {
         return n;
     }
 
+    public static double findZeeta(double[] x) {
+        double peak1 = 0;
+        double peak2 = 0;
+        for (int i = 1; i < x.length; i++) {
+            if (x[i] < x[i + 1]) {
+                continue;
+            } else {
+                if (peak1 == 0) {
+                    peak1 = x[i];
+                } else {
+                    if (x[i - 1] < x[i] && x[i] > x[i + 1]) {
+                        peak2 = x[i];
+                        break;
+                    }
+                }
+            }
+        }
+        return Math.round(Math.log(peak1 / peak2) * 100.0) / 100.0;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload);
-        butter.lowPass(2, 17, 1);
+        butter.lowPass(2, 19, 1);
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
@@ -209,7 +235,8 @@ public class Upload extends AppCompatActivity {
 
 
             // ------ Definitions ------ //
-
+            zeetaInput = (EditText) findViewById(R.id.zeetaInput);
+            zeetaText = (TextView) findViewById(R.id.zeeta);
             toggle = (Button) findViewById(R.id.toggle);
             spinner = (Spinner) findViewById(R.id.graph_spinner);
             ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -243,7 +270,7 @@ public class Upload extends AppCompatActivity {
             for (int i = 0; i < yMagList.length; i++) {
                 datafa[i] = new DataPoint(frequency[i], aMagList[i]);
             }
-
+            double zeeta = findZeeta(yList);
             // ------ Graph init ------- //
             LineGraphSeries<DataPoint> series_y = new LineGraphSeries<DataPoint>(datay);
             series_y.setDrawDataPoints(true);
@@ -264,11 +291,34 @@ public class Upload extends AppCompatActivity {
             series_fa.setDrawDataPoints(true);
 
             // ------ Event Listeners for points ------ //
-
+            zeetaInput.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                            actionId == EditorInfo.IME_ACTION_DONE ||
+                            event != null &&
+                                    event.getAction() == KeyEvent.ACTION_DOWN &&
+                                    event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                        if (event == null || !event.isShiftPressed()) {
+                            InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                            if (Double.parseDouble(v.getText().toString()) <= zeeta * 1.05 && Double.parseDouble(v.getText().toString()) >= zeeta * 0.95) {
+                                zeetaText.setText("Zeeta = " + String.valueOf(zeeta));
+                                zeetaText.setTextColor(Color.parseColor("#00FF00"));
+                            } else {
+                                zeetaText.setText("Zeeta = " + String.valueOf(zeeta));
+                                zeetaText.setTextColor(Color.parseColor("#FF0000"));
+                            }
+                            return true; // consume.
+                        }
+                    }
+                    return false; // pass on to other listeners.
+                }
+            });
+            Log.d("Testing", String.valueOf(zeeta));
             series_y.setOnDataPointTapListener(new OnDataPointTapListener() {
                 @Override
                 public void onTap(Series series, DataPointInterface dataPoint) {
-                    Log.d("datapoint", "datapoint: " + dataPoint.toString());
                     Toast.makeText(Upload.this, "X = " + dataPoint.getY() + " T = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -276,7 +326,6 @@ public class Upload extends AppCompatActivity {
             series_v.setOnDataPointTapListener(new OnDataPointTapListener() {
                 @Override
                 public void onTap(Series series, DataPointInterface dataPoint) {
-                    Log.d("datapoint", "datapoint: " + dataPoint.toString());
                     Toast.makeText(Upload.this, "V = " + dataPoint.getY() + " T = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -284,7 +333,6 @@ public class Upload extends AppCompatActivity {
             series_a.setOnDataPointTapListener(new OnDataPointTapListener() {
                 @Override
                 public void onTap(Series series, DataPointInterface dataPoint) {
-                    Log.d("datapoint", "datapoint: " + dataPoint.toString());
                     Toast.makeText(Upload.this, "A = " + dataPoint.getY() + " T = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -292,7 +340,6 @@ public class Upload extends AppCompatActivity {
             series_fy.setOnDataPointTapListener(new OnDataPointTapListener() {
                 @Override
                 public void onTap(Series series, DataPointInterface dataPoint) {
-                    Log.d("datapoint", "datapoint: " + dataPoint.toString());
                     Toast.makeText(Upload.this, "Amplitude = " + dataPoint.getY() + " Frequency = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -300,7 +347,6 @@ public class Upload extends AppCompatActivity {
             series_fv.setOnDataPointTapListener(new OnDataPointTapListener() {
                 @Override
                 public void onTap(Series series, DataPointInterface dataPoint) {
-                    Log.d("datapoint", "datapoint: " + dataPoint.toString());
                     Toast.makeText(Upload.this, "Amplitude = " + dataPoint.getY() + " Frequency = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -308,7 +354,6 @@ public class Upload extends AppCompatActivity {
             series_fa.setOnDataPointTapListener(new OnDataPointTapListener() {
                 @Override
                 public void onTap(Series series, DataPointInterface dataPoint) {
-                    Log.d("datapoint", "datapoint: " + dataPoint.toString());
                     Toast.makeText(Upload.this, "Amplitude = " + dataPoint.getY() + " Frequency = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
                 }
             });
