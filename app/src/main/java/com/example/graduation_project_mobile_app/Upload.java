@@ -2,9 +2,10 @@ package com.example.graduation_project_mobile_app;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
@@ -25,6 +27,9 @@ import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.jjoe64.graphview.series.OnDataPointTapListener;
 import com.jjoe64.graphview.series.Series;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 import uk.me.berndporr.iirj.Butterworth;
 
@@ -111,7 +116,6 @@ public class Upload extends AppCompatActivity {
     public TextView zeetaText;
     public EditText zeetaInput;
     public Button toggle;
-    public EditText cutoff;
     public Spinner spinner;
     public String[] list = {"Displacement", "Velocity", "Acceleration"};
     public double[] yList;
@@ -153,21 +157,55 @@ public class Upload extends AppCompatActivity {
     public static double findZeeta(double[] x) {
         double peak1 = 0;
         double peak2 = 0;
+        double peak3 = 0;
+        double peak4 = 0;
         for (int i = 1; i < x.length; i++) {
-            if (x[i] < x[i + 1]) {
-                continue;
-            } else {
+            if (x[i - 1] < x[i] && x[i] > x[i + 1]) {
                 if (peak1 == 0) {
                     peak1 = x[i];
+                } else if (peak2 == 0) {
+                    peak2 = x[i];
+                } else if (peak3 == 0) {
+                    peak3 = x[i];
+                } else if (peak4 == 0) {
+                    peak4 = x[i];
                 } else {
-                    if (x[i - 1] < x[i] && x[i] > x[i + 1]) {
-                        peak2 = x[i];
-                        break;
-                    }
+                    break;
                 }
             }
+
         }
-        return Math.round(Math.log(peak1 / peak2) * 100.0) / 100.0;
+        if (peak1 > peak2) {
+            return Math.round(Math.log(peak1 / peak2) * 100.0) / 100.0;
+        } else if (peak2 > peak3) {
+            return Math.round(Math.log(peak2 / peak3) * 100.0) / 100.0;
+        }
+        return Math.round(Math.log(peak3 / peak4) * 100.0) / 100.0;
+    }
+
+    public void export(View view) {
+        StringBuilder data = new StringBuilder();
+        data.append("Time,Displacement,Velocity,Acceleration");
+        for (int i = 0; i < aList.length; i++) {
+            data.append("\n" + String.valueOf(tList[i]) + "," + String.valueOf(yList[i]) + "," + String.valueOf(vList[i]) + "," + String.valueOf(aList[i]));
+        }
+        try {
+            FileOutputStream out = openFileOutput("data.csv", Context.MODE_PRIVATE);
+            out.write((data.toString()).getBytes());
+            out.close();
+            Context context = getApplicationContext();
+            File filelocation = new File(getFilesDir(), "data.csv");
+            Uri path = FileProvider.getUriForFile(context, "com.asu.graduation_project_mobile_app.fileprovider", filelocation);
+            Intent fileIntent = new Intent(Intent.ACTION_SEND);
+            fileIntent.setType("text/csv");
+            fileIntent.putExtra(Intent.EXTRA_SUBJECT, "Data");
+            fileIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            fileIntent.putExtra(Intent.EXTRA_STREAM, path);
+            startActivity(Intent.createChooser(fileIntent, "Send mail"));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

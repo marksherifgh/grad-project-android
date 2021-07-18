@@ -8,6 +8,21 @@
     tools:context=".Upload">
 
 
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#3f51b5"
+        android:onClick="export"
+        android:text="Export Data"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@+id/graph"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.872"
+        app:layout_constraintStart_toEndOf="@+id/graph_spinner"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.666" />
+
     <Spinner
         android:id="@+id/graph_spinner"
         android:layout_width="wrap_content"
@@ -24,27 +39,27 @@
         android:id="@+id/toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="136dp"
+        android:layout_marginStart="32dp"
         android:backgroundTint="#3f51b5"
         android:text="Frequency domain"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/graph"
-        app:layout_constraintVertical_bias="0.538" />
+        app:layout_constraintVertical_bias="0.428" />
 
     <EditText
         android:id="@+id/zeetaInput"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:hint="Enter Zeeta"
         android:inputType="numberDecimal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.28"
         app:layout_constraintStart_toEndOf="@+id/toggle"
         app:layout_constraintTop_toBottomOf="@+id/graph"
-        app:layout_constraintVertical_bias="0.521"
-        android:hint="Enter Zeeta"/>
+        app:layout_constraintVertical_bias="0.446" />
 
     <TextView
         android:id="@+id/zeeta"
@@ -54,10 +69,10 @@
         android:textSize="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.663"
+        app:layout_constraintHorizontal_bias="0.771"
         app:layout_constraintStart_toEndOf="@+id/toggle"
         app:layout_constraintTop_toBottomOf="@+id/graph"
-        app:layout_constraintVertical_bias="0.535" />
+        app:layout_constraintVertical_bias="0.446" />
 
     <com.jjoe64.graphview.GraphView
         android:id="@+id/graph"
