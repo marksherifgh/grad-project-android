@@ -184,12 +184,13 @@ public class Upload extends AppCompatActivity {
     }
 
     public void export(View view) {
-        StringBuilder data = new StringBuilder();
-        data.append("Time,Displacement,Velocity,Acceleration");
-        for (int i = 0; i < aList.length; i++) {
-            data.append("\n" + String.valueOf(tList[i]) + "," + String.valueOf(yList[i]) + "," + String.valueOf(vList[i]) + "," + String.valueOf(aList[i]));
-        }
         try {
+            StringBuilder data = new StringBuilder();
+            data.append("Time,Displacement,Velocity,Acceleration");
+            for (int i = 0; i < aList.length; i++) {
+                data.append("\n" + String.valueOf(tList[i]) + "," + String.valueOf(yList[i]) + "," + String.valueOf(vList[i]) + "," + String.valueOf(aList[i]));
+            }
+
             FileOutputStream out = openFileOutput("data.csv", Context.MODE_PRIVATE);
             out.write((data.toString()).getBytes());
             out.close();
@@ -204,7 +205,7 @@ public class Upload extends AppCompatActivity {
             startActivity(Intent.createChooser(fileIntent, "Send mail"));
 
         } catch (Exception e) {
-            e.printStackTrace();
+
         }
     }
 
