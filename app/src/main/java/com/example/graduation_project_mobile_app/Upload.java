@@ -229,261 +229,261 @@ public class Upload extends AppCompatActivity {
         }
 
 //        try {
-            vList = new double[yList.length - 1];
-            aList = new double[vList.length - 1];
-            double tCorrection = tList[0];
-            for (int i = 0; i < tList.length; i++) {
-                tList[i] = Math.round((tList[i] - tCorrection) * 100.0) / 100.0;
-                yList[i] = Math.round(butter.filter(yList[i]) * 100.0) / 100.0;
+        vList = new double[yList.length - 1];
+        aList = new double[vList.length - 1];
+        double tCorrection = tList[0];
+        for (int i = 0; i < tList.length; i++) {
+            tList[i] = Math.round((tList[i] - tCorrection) * 100.0) / 100.0;
+            yList[i] = Math.round(butter.filter(yList[i]) * 100.0) / 100.0;
+        }
+
+        for (int i = 0; i < tList.length - 1; i++) {
+            double dx = yList[i + 1] - yList[i];
+            double dt = tList[i + 1] - tList[i];
+            double v = dx / dt;
+            vList[i] = Math.round(butter.filter(v) * 100.0) / 100.0;
+        }
+
+        for (int i = 0; i < vList.length - 1; i++) {
+            double dv = vList[i + 1] - vList[i];
+            double dt = tList[i + 1] - tList[i];
+            double a = dv / dt;
+            aList[i] = Math.round(butter.filter(a) * 100.0) / 100.0;
+        }
+
+        // ----- Frequency Calculations ----- //
+        yfreqList = new double[findPreviousPowerOf2(yList.length)];
+        vfreqList = new double[findPreviousPowerOf2(vList.length)];
+        afreqList = new double[findPreviousPowerOf2(aList.length)];
+        System.arraycopy(yList, 0, yfreqList, 0, yfreqList.length);
+        System.arraycopy(vList, 0, vfreqList, 0, vfreqList.length);
+        System.arraycopy(aList, 0, afreqList, 0, afreqList.length);
+        double[] yZeroList = new double[yfreqList.length];
+        double[] vZeroList = new double[yfreqList.length];
+        double[] aZeroList = new double[yfreqList.length];
+        double[] yMagList = fftCalculator(yfreqList, yZeroList);
+        double[] vMagList = fftCalculator(vfreqList, vZeroList);
+        double[] aMagList = fftCalculator(afreqList, aZeroList);
+        frequency = new double[yMagList.length];
+        for (int i = 0; i < frequency.length; i++) {
+            if (i == 0) {
+                frequency[i] = 17.0 / frequency.length;
             }
-
-            for (int i = 0; i < tList.length - 1; i++) {
-                double dx = yList[i + 1] - yList[i];
-                double dt = tList[i + 1] - tList[i];
-                double v = dx / dt;
-                vList[i] = Math.round(butter.filter(v) * 100.0) / 100.0;
-            }
-
-            for (int i = 0; i < vList.length - 1; i++) {
-                double dv = vList[i + 1] - vList[i];
-                double dt = tList[i + 1] - tList[i];
-                double a = dv / dt;
-                aList[i] = Math.round(butter.filter(a) * 100.0) / 100.0;
-            }
-
-            // ----- Frequency Calculations ----- //
-            yfreqList = new double[findPreviousPowerOf2(yList.length)];
-            vfreqList = new double[findPreviousPowerOf2(vList.length)];
-            afreqList = new double[findPreviousPowerOf2(aList.length)];
-            System.arraycopy(yList, 0, yfreqList, 0, yfreqList.length);
-            System.arraycopy(vList, 0, vfreqList, 0, vfreqList.length);
-            System.arraycopy(aList, 0, afreqList, 0, afreqList.length);
-            double[] yZeroList = new double[yfreqList.length];
-            double[] vZeroList = new double[yfreqList.length];
-            double[] aZeroList = new double[yfreqList.length];
-            double[] yMagList = fftCalculator(yfreqList, yZeroList);
-            double[] vMagList = fftCalculator(vfreqList, vZeroList);
-            double[] aMagList = fftCalculator(afreqList, aZeroList);
-            frequency = new double[yMagList.length];
-            for (int i = 0; i < frequency.length; i++) {
-                if (i == 0) {
-                    frequency[i] = 17.0 / frequency.length;
-                }
-                frequency[i] = (17.0 / frequency.length) * i;
-            }
+            frequency[i] = (17.0 / frequency.length) * i;
+        }
 
 
-            // ------ Definitions ------ //
-            zeetaInput = (EditText) findViewById(R.id.zeetaInput);
-            zeetaText = (TextView) findViewById(R.id.zeeta);
-            toggle = (Button) findViewById(R.id.toggle);
-            spinner = (Spinner) findViewById(R.id.graph_spinner);
-            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                    R.array.graph_spinner, R.layout.spinner_item);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinner.setAdapter(adapter);
-            GraphView graph = (GraphView) findViewById(R.id.graph);
+        // ------ Definitions ------ //
+        zeetaInput = (EditText) findViewById(R.id.zeetaInput);
+        zeetaText = (TextView) findViewById(R.id.zeeta);
+        toggle = (Button) findViewById(R.id.toggle);
+        spinner = (Spinner) findViewById(R.id.graph_spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.graph_spinner, R.layout.spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        GraphView graph = (GraphView) findViewById(R.id.graph);
 
-            datay = new DataPoint[yList.length];
-            datav = new DataPoint[vList.length - 1];
-            dataa = new DataPoint[aList.length - 1];
-            datafy = new DataPoint[yMagList.length];
-            datafv = new DataPoint[vMagList.length];
-            datafa = new DataPoint[aMagList.length];
+        datay = new DataPoint[yList.length];
+        datav = new DataPoint[vList.length - 1];
+        dataa = new DataPoint[aList.length - 1];
+        datafy = new DataPoint[yMagList.length];
+        datafv = new DataPoint[vMagList.length];
+        datafa = new DataPoint[aMagList.length];
 
-            for (int i = 0; i < yList.length; i++) {
-                datay[i] = new DataPoint(tList[i], yList[i]);
-            }
-            for (int i = 0; i < vList.length - 1; i++) {
-                datav[i] = new DataPoint(tList[i], vList[i]);
-            }
-            for (int i = 0; i < aList.length - 1; i++) {
-                dataa[i] = new DataPoint(tList[i], aList[i]);
-            }
-            for (int i = 0; i < yMagList.length; i++) {
-                datafy[i] = new DataPoint(frequency[i], yMagList[i]);
-            }
-            for (int i = 0; i < yMagList.length; i++) {
-                datafv[i] = new DataPoint(frequency[i], vMagList[i]);
-            }
-            for (int i = 0; i < yMagList.length; i++) {
-                datafa[i] = new DataPoint(frequency[i], aMagList[i]);
-            }
-            double zeeta = findZeeta(yList);
-            // ------ Graph init ------- //
-            LineGraphSeries<DataPoint> series_y = new LineGraphSeries<DataPoint>(datay);
-            series_y.setDrawDataPoints(true);
+        for (int i = 0; i < yList.length; i++) {
+            datay[i] = new DataPoint(tList[i], yList[i]);
+        }
+        for (int i = 0; i < vList.length - 1; i++) {
+            datav[i] = new DataPoint(tList[i], vList[i]);
+        }
+        for (int i = 0; i < aList.length - 1; i++) {
+            dataa[i] = new DataPoint(tList[i], aList[i]);
+        }
+        for (int i = 0; i < yMagList.length; i++) {
+            datafy[i] = new DataPoint(frequency[i], yMagList[i]);
+        }
+        for (int i = 0; i < yMagList.length; i++) {
+            datafv[i] = new DataPoint(frequency[i], vMagList[i]);
+        }
+        for (int i = 0; i < yMagList.length; i++) {
+            datafa[i] = new DataPoint(frequency[i], aMagList[i]);
+        }
+        double zeeta = findZeeta(yList);
+        // ------ Graph init ------- //
+        LineGraphSeries<DataPoint> series_y = new LineGraphSeries<DataPoint>(datay);
+        series_y.setDrawDataPoints(true);
 
-            LineGraphSeries<DataPoint> series_v = new LineGraphSeries<DataPoint>(datav);
-            series_v.setDrawDataPoints(true);
+        LineGraphSeries<DataPoint> series_v = new LineGraphSeries<DataPoint>(datav);
+        series_v.setDrawDataPoints(true);
 
-            LineGraphSeries<DataPoint> series_a = new LineGraphSeries<DataPoint>(dataa);
-            series_a.setDrawDataPoints(true);
+        LineGraphSeries<DataPoint> series_a = new LineGraphSeries<DataPoint>(dataa);
+        series_a.setDrawDataPoints(true);
 
-            LineGraphSeries<DataPoint> series_fy = new LineGraphSeries<DataPoint>(datafy);
-            series_fy.setDrawDataPoints(true);
+        LineGraphSeries<DataPoint> series_fy = new LineGraphSeries<DataPoint>(datafy);
+        series_fy.setDrawDataPoints(true);
 
-            LineGraphSeries<DataPoint> series_fv = new LineGraphSeries<DataPoint>(datafy);
-            series_fv.setDrawDataPoints(true);
+        LineGraphSeries<DataPoint> series_fv = new LineGraphSeries<DataPoint>(datafy);
+        series_fv.setDrawDataPoints(true);
 
-            LineGraphSeries<DataPoint> series_fa = new LineGraphSeries<DataPoint>(datafy);
-            series_fa.setDrawDataPoints(true);
+        LineGraphSeries<DataPoint> series_fa = new LineGraphSeries<DataPoint>(datafy);
+        series_fa.setDrawDataPoints(true);
 
-            // ------ Event Listeners for points ------ //
-            zeetaInput.setOnEditorActionListener(new EditText.OnEditorActionListener() {
-                @Override
-                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                    if (actionId == EditorInfo.IME_ACTION_SEARCH ||
-                            actionId == EditorInfo.IME_ACTION_DONE ||
-                            event != null &&
-                                    event.getAction() == KeyEvent.ACTION_DOWN &&
-                                    event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                        if (event == null || !event.isShiftPressed()) {
-                            InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                            if (Double.parseDouble(v.getText().toString()) <= zeeta * 1.05 && Double.parseDouble(v.getText().toString()) >= zeeta * 0.95) {
-                                zeetaText.setText("Zeeta = " + String.valueOf(zeeta));
-                                zeetaText.setTextColor(Color.parseColor("#00FF00"));
-                            } else {
-                                zeetaText.setText("Zeeta = " + String.valueOf(zeeta));
-                                zeetaText.setTextColor(Color.parseColor("#FF0000"));
-                            }
-                            return true; // consume.
-                        }
-                    }
-                    return false; // pass on to other listeners.
-                }
-            });
-            series_y.setOnDataPointTapListener(new OnDataPointTapListener() {
-                @Override
-                public void onTap(Series series, DataPointInterface dataPoint) {
-                    Toast.makeText(Upload.this, "X = " + dataPoint.getY() + " T = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            series_v.setOnDataPointTapListener(new OnDataPointTapListener() {
-                @Override
-                public void onTap(Series series, DataPointInterface dataPoint) {
-                    Toast.makeText(Upload.this, "V = " + dataPoint.getY() + " T = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            series_a.setOnDataPointTapListener(new OnDataPointTapListener() {
-                @Override
-                public void onTap(Series series, DataPointInterface dataPoint) {
-                    Toast.makeText(Upload.this, "A = " + dataPoint.getY() + " T = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            series_fy.setOnDataPointTapListener(new OnDataPointTapListener() {
-                @Override
-                public void onTap(Series series, DataPointInterface dataPoint) {
-                    Toast.makeText(Upload.this, "Amplitude = " + dataPoint.getY() + " Frequency = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            series_fv.setOnDataPointTapListener(new OnDataPointTapListener() {
-                @Override
-                public void onTap(Series series, DataPointInterface dataPoint) {
-                    Toast.makeText(Upload.this, "Amplitude = " + dataPoint.getY() + " Frequency = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            series_fa.setOnDataPointTapListener(new OnDataPointTapListener() {
-                @Override
-                public void onTap(Series series, DataPointInterface dataPoint) {
-                    Toast.makeText(Upload.this, "Amplitude = " + dataPoint.getY() + " Frequency = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
-                }
-            });
-
-
-            // ------ Graph Settings ------ //
-
-            graph.getGridLabelRenderer().setGridColor(Color.WHITE);
-            graph.getGridLabelRenderer().setVerticalLabelsColor(Color.WHITE);
-            graph.getGridLabelRenderer().setHorizontalLabelsColor(Color.WHITE);
-            graph.getViewport().setScrollable(true);
-            graph.getViewport().setScalable(true);
-            graph.addSeries(series_y);
-            graph.getGridLabelRenderer().reloadStyles();
-
-            // ------ Frequency toggling settings ------ //
-            toggle.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (toggle.getText() == "Frequency domain") {
-                        toggle.setText("Time domain");
-                        domain = 1;
-                        if (f == 0) {
-                            graph.removeAllSeries();
-                            graph.addSeries(series_fy);
-                        } else if (f == 1) {
-                            graph.removeAllSeries();
-                            graph.addSeries(series_fv);
+        // ------ Event Listeners for points ------ //
+        zeetaInput.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                        actionId == EditorInfo.IME_ACTION_DONE ||
+                        event != null &&
+                                event.getAction() == KeyEvent.ACTION_DOWN &&
+                                event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                    if (event == null || !event.isShiftPressed()) {
+                        InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                        if (Double.parseDouble(v.getText().toString()) <= zeeta * 1.05 && Double.parseDouble(v.getText().toString()) >= zeeta * 0.95) {
+                            zeetaText.setText("Zeeta = " + String.valueOf(zeeta));
+                            zeetaText.setTextColor(Color.parseColor("#00FF00"));
                         } else {
-                            graph.removeAllSeries();
-                            graph.addSeries(series_fa);
+                            zeetaText.setText("Zeeta = " + String.valueOf(zeeta));
+                            zeetaText.setTextColor(Color.parseColor("#FF0000"));
                         }
+                        return true; // consume.
+                    }
+                }
+                return false; // pass on to other listeners.
+            }
+        });
+        series_y.setOnDataPointTapListener(new OnDataPointTapListener() {
+            @Override
+            public void onTap(Series series, DataPointInterface dataPoint) {
+                Toast.makeText(Upload.this, "X = " + dataPoint.getY() + " T = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        series_v.setOnDataPointTapListener(new OnDataPointTapListener() {
+            @Override
+            public void onTap(Series series, DataPointInterface dataPoint) {
+                Toast.makeText(Upload.this, "V = " + dataPoint.getY() + " T = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        series_a.setOnDataPointTapListener(new OnDataPointTapListener() {
+            @Override
+            public void onTap(Series series, DataPointInterface dataPoint) {
+                Toast.makeText(Upload.this, "A = " + dataPoint.getY() + " T = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        series_fy.setOnDataPointTapListener(new OnDataPointTapListener() {
+            @Override
+            public void onTap(Series series, DataPointInterface dataPoint) {
+                Toast.makeText(Upload.this, "Amplitude = " + dataPoint.getY() + " Frequency = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        series_fv.setOnDataPointTapListener(new OnDataPointTapListener() {
+            @Override
+            public void onTap(Series series, DataPointInterface dataPoint) {
+                Toast.makeText(Upload.this, "Amplitude = " + dataPoint.getY() + " Frequency = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        series_fa.setOnDataPointTapListener(new OnDataPointTapListener() {
+            @Override
+            public void onTap(Series series, DataPointInterface dataPoint) {
+                Toast.makeText(Upload.this, "Amplitude = " + dataPoint.getY() + " Frequency = " + dataPoint.getX(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+        // ------ Graph Settings ------ //
+
+        graph.getGridLabelRenderer().setGridColor(Color.WHITE);
+        graph.getGridLabelRenderer().setVerticalLabelsColor(Color.WHITE);
+        graph.getGridLabelRenderer().setHorizontalLabelsColor(Color.WHITE);
+        graph.getViewport().setScrollable(true);
+        graph.getViewport().setScalable(true);
+        graph.addSeries(series_y);
+        graph.getGridLabelRenderer().reloadStyles();
+
+        // ------ Frequency toggling settings ------ //
+        toggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (toggle.getText() == "Frequency domain") {
+                    toggle.setText("Time domain");
+                    domain = 1;
+                    if (f == 0) {
+                        graph.removeAllSeries();
+                        graph.addSeries(series_fy);
+                    } else if (f == 1) {
+                        graph.removeAllSeries();
+                        graph.addSeries(series_fv);
                     } else {
-                        toggle.setText("Frequency domain");
-                        domain = 0;
-                        if (f == 0) {
-                            graph.removeAllSeries();
-                            graph.addSeries(series_y);
-                        } else if (f == 1) {
-                            graph.removeAllSeries();
-                            graph.addSeries(series_v);
-                        } else {
-                            graph.removeAllSeries();
-                            graph.addSeries(series_a);
-                        }
+                        graph.removeAllSeries();
+                        graph.addSeries(series_fa);
                     }
-                }
-            });
-
-            // ------ Spinner Settings ------ //
-
-            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    graph.removeAllSeries();
-                    if (list[position] == "Acceleration") {
-                        if (domain == 0) {
-                            f = 2;
-                            graph.removeAllSeries();
-                            graph.addSeries(series_a);
-                        } else {
-                            f = 2;
-                            graph.removeAllSeries();
-                            graph.addSeries(series_fa);
-                        }
-                    } else if (list[position] == "Velocity") {
-                        if (domain == 0) {
-                            f = 1;
-                            graph.removeAllSeries();
-                            graph.addSeries(series_v);
-                        } else {
-                            f = 1;
-                            graph.removeAllSeries();
-                            graph.addSeries(series_fv);
-                        }
+                } else {
+                    toggle.setText("Frequency domain");
+                    domain = 0;
+                    if (f == 0) {
+                        graph.removeAllSeries();
+                        graph.addSeries(series_y);
+                    } else if (f == 1) {
+                        graph.removeAllSeries();
+                        graph.addSeries(series_v);
                     } else {
-                        if (domain == 0) {
-                            f = 0;
-                            graph.removeAllSeries();
-                            graph.addSeries(series_y);
-                        } else {
-                            f = 0;
-                            graph.removeAllSeries();
-                            graph.addSeries(series_fv);
-                        }
+                        graph.removeAllSeries();
+                        graph.addSeries(series_a);
                     }
                 }
+            }
+        });
 
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
+        // ------ Spinner Settings ------ //
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                graph.removeAllSeries();
+                if (list[position] == "Acceleration") {
+                    if (domain == 0) {
+                        f = 2;
+                        graph.removeAllSeries();
+                        graph.addSeries(series_a);
+                    } else {
+                        f = 2;
+                        graph.removeAllSeries();
+                        graph.addSeries(series_fa);
+                    }
+                } else if (list[position] == "Velocity") {
+                    if (domain == 0) {
+                        f = 1;
+                        graph.removeAllSeries();
+                        graph.addSeries(series_v);
+                    } else {
+                        f = 1;
+                        graph.removeAllSeries();
+                        graph.addSeries(series_fv);
+                    }
+                } else {
+                    if (domain == 0) {
+                        f = 0;
+                        graph.removeAllSeries();
+                        graph.addSeries(series_y);
+                    } else {
+                        f = 0;
+                        graph.removeAllSeries();
+                        graph.addSeries(series_fv);
+                    }
                 }
-            });
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
 //        } catch (Exception e) {
 //
 //        }

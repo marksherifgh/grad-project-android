@@ -12,6 +12,7 @@ public class MainActivity extends AppCompatActivity {
     public Button how;
     public Button camera;
     public Button playGround;
+    public Button about;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
         how = (Button) findViewById(R.id.howTo);
         camera = (Button) findViewById(R.id.camera);
         playGround = (Button) findViewById(R.id.playGround);
+        about = (Button) findViewById(R.id.about);
 
         how.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -39,6 +41,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, ArucoPlayground.class);
+                startActivity(intent);
+            }
+        });
+        about.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, About.class);
                 startActivity(intent);
             }
         });
