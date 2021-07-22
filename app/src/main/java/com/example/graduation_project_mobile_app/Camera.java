@@ -141,8 +141,6 @@ public class Camera extends Activity implements CvCameraViewListener2 {
         super.onDestroy();
         yTemp = null;
         tTemp = null;
-        yDynamic = null;
-        tDynamic = null;
         Intent intent = new Intent(Camera.this, Upload.class);
         intent.putExtra("yList", yList);
         intent.putExtra("tList", tList);

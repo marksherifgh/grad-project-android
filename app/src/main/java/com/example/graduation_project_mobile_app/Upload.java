@@ -228,7 +228,7 @@ public class Upload extends AppCompatActivity {
             tList = (double[]) savedInstanceState.getSerializable("tList");
         }
 
-        try {
+//        try {
             vList = new double[yList.length - 1];
             aList = new double[vList.length - 1];
             double tCorrection = tList[0];
@@ -484,9 +484,9 @@ public class Upload extends AppCompatActivity {
                 public void onNothingSelected(AdapterView<?> parent) {
                 }
             });
-        } catch (Exception e) {
-
-        }
+//        } catch (Exception e) {
+//
+//        }
 
     }
 }
